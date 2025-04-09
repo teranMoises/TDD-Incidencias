@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Incidencias - Gestión de Incidencias</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header>
+    <h1>Gestión de Incidencias</h1>
+  </header>
+  <section>
+    <form id="incidenciaForm">
+      <select id="empresaSelect" required>
+        <option value="">Seleccione una Empresa</option>
+        <!-- Se llenará dinámicamente -->
+      </select>
+      <textarea id="descripcion" placeholder="Descripción de la incidencia" required></textarea>
+      <input type="text" id="causa" placeholder="Posibles Causas">
+      <input type="text" id="afectacion" placeholder="Área/Afectación">
+      <textarea id="reporte" placeholder="Reporte Inicial" required></textarea>
+      <textarea id="atencion" placeholder="Atención/Acciones realizadas"></textarea>
+      <button type="submit">Registrar Incidencia</button>
+    </form>
+    <h3>Histórico de Incidencias</h3>
+    <ul id="listaIncidencias"></ul>
+  </section>
+  <script src="js/incidencias.js"></script>
+</body>
+</html>
