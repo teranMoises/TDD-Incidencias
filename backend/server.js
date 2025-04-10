@@ -1,70 +1,50 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const cors = require("cors"); // Permite solicitudes desde el frontend
+// Estructura de archivos
+
+// server.js
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const dotenv = require('dotenv');
+const empresaRoutes = require('./routes/empresaRoutes');
+const incidenciaRoutes = require('./routes/incidenciaRoutes');
+const authRoutes = require('./routes/authRoutes');
+
+// Cargar variables de entorno
+dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 5000;
+const MONGO_URI = process.env.MONGO_URI;
 
-// Configuración de Middlewares
-app.use(bodyParser.json());
-app.use(cors());
+// Configuración específica para CORS con credenciales
+const corsOptions = {
+  origin: 'http://localhost:3000', // Solo permitir este origen
+  credentials: true, // Permitir credenciales
+  optionsSuccessStatus: 200 // Para navegadores antiguos
+};
+// Middleware
+app.use(cors(corsOptions));
+app.use(express.json());
 
-// Simulación de base de datos en memoria
-let usuarios = [
-    { username: "admin", password: "admin123" }
-];
+// Rutas
+app.use('/api/auth', authRoutes);
+app.use('/api/empresas', empresaRoutes);
+app.use('/api/incidencias', incidenciaRoutes);
 
-let empresas = [];
-let incidencias = [];
-
-// Ruta de Login
-app.post("/login", (req, res) => {
-    const { username, password } = req.body;
-    const user = usuarios.find(u => u.username === username && u.password === password);
-    if (user) {
-        res.json({ success: true });
-    } else {
-        res.json({ success: false, message: "Usuario o contraseña incorrecta" });
-    }
+// Ruta principal
+app.get('/', (req, res) => {
+  res.send('API de Sistema de Gestión de Incidencias');
 });
 
-// Rutas para empresas
-app.get("/empresas", (req, res) => {
-    res.json(empresas);
-});
-
-app.post("/empresas", (req, res) => {
-    const { nombre, direccion } = req.body;
-    empresas.push({ nombre, direccion });
-    res.json({ success: true });
-});
-
-// Rutas para incidencias
-app.get("/incidencias", (req, res) => {
-    res.json(incidencias);
-});
-
-app.post("/incidencias", (req, res) => {
-    const { empresaIndex, descripcion, causa, afectacion, reporte, atencion } = req.body;
-    // Se verifica que la empresa exista
-    if (empresas[empresaIndex]) {
-        const incidencia = {
-            empresa: empresas[empresaIndex],
-            descripcion,
-            causa,
-            afectacion,
-            reporte,
-            atencion,
-            fecha: new Date()
-        };
-        incidencias.push(incidencia);
-        res.json({ success: true });
-    } else {
-        res.json({ success: false, message: "Empresa no encontrada" });
-    }
-});
-
-// Iniciar el servidor
-app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
-});
+// Conexión a MongoDB y arranque del servidor
+mongoose
+  .connect(MONGO_URI)
+  .then(() => {
+    console.log('Conexión a MongoDB establecida');
+    app.listen(PORT, () => {
+      console.log(`Servidor corriendo en puerto ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error('Error al conectar a MongoDB:', err.message);
+  });
